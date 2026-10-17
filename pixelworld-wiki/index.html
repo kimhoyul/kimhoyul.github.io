@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PixelWorld Wiki</title></head>
 <body><p id="loading">PixelWorld 위키를 불러오는 중입니다.</p><noscript>문서를 표시하려면 JavaScript가 필요합니다.</noscript>
-<script src="engine-transition.js?v=20261017-1"></script>
+<script src="engine-transition.js?v=20261017-2"></script>
 <script>
 (async function(){
   try {
@@ -18,7 +18,7 @@
       if(raw){
         const saved=JSON.parse(raw);
         if(Array.isArray(saved.pages)){
-          if(!saved.engineTransitionVersion)localStorage.setItem(key+'-before-unreal-20261017',raw);
+          if(saved.engineTransitionVersion!==2)localStorage.setItem(key+'-before-guided-20261017',raw);
           localStorage.setItem(key,JSON.stringify(window.applyPixelWorldEngineTransition(saved,original)));
         }
       }
