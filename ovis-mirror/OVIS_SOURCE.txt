@@ -1,0 +1,4 @@
+Original Ovis UI, MIT licensed, copyright 2026 devswha.
+Source: https://github.com/devswha/ovis
+Revision: 6c694ec4d50997de635d4b468fdfc5d599660d7d
+This official-fixture demo does not access ChatGPT, MyPC MCP, or a real PC.

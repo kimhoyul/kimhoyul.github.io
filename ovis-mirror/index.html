@@ -1,354 +1,48 @@
 <!doctype html>
-<!--
-OVIS Mirror screenshot-fidelity UI demo.
-Original Ovis: https://github.com/devswha/ovis (MIT License, © 2026 devswha).
-This page is an independently implemented, static visual demo. It does not
-connect to a private local computer, mirror service or ChatGPT conversation.
--->
-<html lang="ko" data-mode="dark">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#171717">
-<title>OVIS Mirror — UI Preview</title>
-<style>
-:root {
- --bg:#171717;--sidebar:#1f1f1f;--raised:#252525;--hover:#2b2b2b;--border:#292929;
- --text:#e7e7e7;--dim:#8e8e8e;--subtle:#b1b1b1;--blue:#3788ed;--radius:6px;
- --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
-}
-html[data-mode="light"]{--bg:#f8f8f8;--sidebar:#f0f0f0;--raised:#e7e7e7;--hover:#e0e0e0;--border:#dedede;--text:#222;--dim:#777;--subtle:#555;--blue:#1467d2;color-scheme:light}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);font-size:12px}
-button,input,textarea{font-family:inherit;font-size:inherit}
-button{cursor:pointer;color:inherit}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-button:disabled{opacity:.45;cursor:default}
-svg{display:block}
-.i{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.ui{height:100dvh;display:flex;overflow:hidden}
-.sidebar{position:relative;flex:0 0 260px;width:260px;min-width:0;background:var(--sidebar);display:flex;flex-direction:column;border-right:1px solid var(--border)}
-.sidebar-head{height:43px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 12px;flex:none}
-.glyph-btn{border:0;background:transparent;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:#d1d1d1}
-.glyph-btn:hover{background:var(--hover)}
-.sidebar-head .glyph-btn:first-child{margin-left:-6px}
-.filter-wrap{padding:3px 9px 8px;display:flex;align-items:center;gap:8px;height:36px}
-.filter-wrap label{font-size:11px;color:var(--dim)}
-.filter-wrap input{border:1px solid #2a2a2a;border-radius:6px;background:#222;color:var(--text);height:27px;outline:0;padding:0 10px;flex:1;width:0;font-size:11px}
-html[data-mode="light"] .filter-wrap input{background:#fafafa;border-color:#ddd}
-.filter-wrap input:focus{border-color:var(--blue)}
-.section-scroll{min-height:0;flex:1;overflow:auto;scrollbar-width:thin}
-.tree{padding:4px 8px 0}
-.tree-group{margin:3px 0 7px}
-.workspace-head{width:100%;height:27px;display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:6px;padding:0 8px;text-align:left}
-.workspace-head:hover{background:var(--hover)}
-.workspace-head .i{width:16px;height:16px;color:#a0a0a0}
-.workspace-name{font-size:12px;font-weight:500}
-.workspace-branch{margin:0 0 0 14px;border-left:1px solid #363636;padding-left:0}
-.workspace-row{height:28px;width:100%;display:flex;align-items:center;gap:8px;padding:0 10px 0 11px;position:relative;border:0;border-radius:6px;text-align:left;background:transparent;overflow:hidden}
-.workspace-row::before{position:absolute;left:-15px;top:14px;width:15px;height:1px;background:#393939;content:""}
-.workspace-row:hover,.workspace-row.active{background:var(--hover)}
-.workspace-row .title{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:0}
-.workspace-row .secondary{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-.workspace-row .question{font-size:12px;color:#f38b87}
-.workspace-row .mark{width:16px;height:16px;flex:none;font-size:11px}
-.mark{display:inline-flex;align-items:center;justify-content:center;border-radius:3px;font-weight:700;line-height:1;color:#fff}
-.mark.claude{background:#d66a4c}
-.mark.openai{font-size:16px;color:#cbcbcb;background:transparent}
-.mark.purple{background:#3a1d59;color:#c987ff}
-.mark.pixel{color:#e8e8e8;background:transparent}
-.tree-add{display:flex;align-items:center;gap:9px;width:100%;height:28px;background:transparent;border:0;border-radius:5px;text-align:left;color:#a4a4a4;padding:0 10px;font-size:11px}
-.tree-add:hover{background:var(--hover)}
-.empty{padding:12px;color:var(--dim);font-size:11px}
-.agent-pane{flex:none;padding:0 8px 16px;margin-top:auto}
-.agent-label{font-size:11px;color:#a9a9a9;margin:0 0 12px;padding:0 28px}
-.agent-row{height:29px;width:100%;display:flex;align-items:center;gap:8px;padding:0 9px;border:0;background:transparent;border-radius:6px;text-align:left;min-width:0}
-.agent-row:hover,.agent-row.active{background:var(--hover)}
-.agent-row .primary{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
-.agent-row .secondary{font-size:10px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.agent-row .side-state{font-size:10px;color:var(--dim);margin-left:auto}
-.agent-row .question{color:#e67f7f}
-.sidebar-foot{height:37px;flex:none;padding:0 11px;display:flex;align-items:center;color:#aaa}
-.sidebar-foot .glyph-btn{padding:5px}
-.main{flex:1;min-width:0;background:var(--bg);display:flex;flex-direction:column;position:relative}
-.main-head{height:40px;flex:none;display:flex;align-items:center;gap:9px;padding:0 14px;border-bottom:1px solid var(--border);min-width:0}
-.main-head .header-name{font-weight:650;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.main-head .header-context{color:var(--dim);font-size:11px;margin-left:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.main-right{display:flex;align-items:center;gap:4px;margin-left:auto}
-.header-switch{display:flex;align-items:center;gap:3px;padding:3px;border-radius:6px}
-.header-switch button{background:none;border:0;padding:5px 9px;color:#a1a1a1;border-radius:6px;font-size:11px}
-.header-switch button.active{background:#2d2d2d;color:#ececec}
-html[data-mode="light"] .header-switch button.active{background:#e4e4e4;color:#222}
-.header-divider{width:1px;height:15px;background:#303030;margin:0 4px}
-.tabbar{height:28px;flex:none;border-bottom:1px solid #222;display:flex;align-items:stretch;padding:0 11px;gap:0}
-.tab{height:28px;max-width:250px;display:flex;align-items:center;gap:7px;background:none;border:0;padding:0 12px;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500;font-size:11px;color:#aaa}
-.tab.selected{color:#f3f3f3;border-bottom-color:var(--blue)}
-html[data-mode="light"] .tab.selected{color:#222}
-.tab-plus{background:transparent;border:0;padding:0 10px;color:#aaa;font-size:18px}
-.tab-plus:hover{background:var(--hover)}
-.stage{position:relative;flex:1;min-height:0;overflow:hidden}
-.chat-scroll{position:absolute;inset:0;overflow-y:auto;padding:14px 16px 190px;scrollbar-width:thin}
-.thread{width:min(794px,100%);margin:0 auto}
-.user-turn{display:flex;flex-direction:column;align-items:flex-end;margin-bottom:23px}
-.user-bubble{max-width:min(92%,610px);background:var(--raised);padding:11px 14px;border-radius:9px;font-family:Consolas,"SFMono-Regular",monospace;font-size:11px;line-height:1.65;overflow-wrap:anywhere}
-.user-meta{display:flex;align-items:center;gap:5px;margin-top:5px;color:var(--dim);font-size:10px}
-.user-meta button,.assistant-meta button{background:transparent;border:0;color:var(--dim);display:flex;align-items:center;padding:0}
-.user-meta button .i,.assistant-meta button .i{width:12px;height:12px}
-.agent-turn{margin-top:5px}
-.work-summary{border:0;border-bottom:1px solid #272727;background:transparent;color:var(--dim);display:flex;align-items:center;gap:6px;padding:6px 0 12px;min-height:28px;width:100%;text-align:left;font-size:10px}
-.work-summary .i{width:12px;height:12px}
-.work-summary[aria-expanded="true"] .chev{transform:rotate(90deg)}
-.work-details{display:none;padding:12px;background:#1d1d1d;border-bottom:1px solid var(--border);color:#b3b3b3;font-family:Consolas,monospace;line-height:1.7}
-.work-details.show{display:block}
-.agent-answer{margin-top:12px;font-size:12px;line-height:1.8;white-space:pre-line}
-.assistant-meta{display:flex;align-items:center;gap:10px;color:#898989;font-size:10px;margin-top:11px}
-.meta-type{display:flex;align-items:center;gap:4px}
-.terminal-stage{height:100%;padding:22px 30px;overflow:auto;color:#b9b9b9}
-.terminal-stage pre{font-family:Consolas,monospace;font-size:12px;line-height:1.8;padding:20px;background:#1e1e1e;border-radius:8px}
-.composer-wrap{position:absolute;bottom:16px;left:0;right:0;pointer-events:none;padding:0 16px}
-.composer-column{width:min(794px,100%);margin:0 auto;pointer-events:auto}
-.composer{height:auto;min-height:65px;border-radius:18px;background:var(--raised);padding:10px 10px 8px 14px;border:1px solid #2d2d2d;box-shadow:0 6px 18px #0002}
-.composer textarea{background:transparent;color:var(--text);border:0;resize:none;outline:0;width:100%;height:22px;min-height:22px;max-height:115px;line-height:1.5;padding:1px 0 0;display:block;font-size:12px}
-.composer textarea::placeholder{color:#9b9b9b}
-.compose-footer{display:flex;align-items:center;gap:7px;margin-top:3px;min-height:25px}
-.compose-footer .glyph-btn{padding:5px;color:#a6a6a6}
-.job-chip{background:#293648;border:0;border-radius:5px;color:#88b6ff;font-size:10px;padding:4px 8px;white-space:nowrap}
-.composer-right{margin-left:auto;display:flex;align-items:center;gap:7px}
-.model-chip{display:flex;align-items:center;gap:4px;background:#303030;border:0;border-radius:7px;color:#ddd;padding:6px 9px;font-size:11px}
-.model-chip .muted{font-size:10px;color:#a0a0a0}
-.send{width:29px;height:29px;border-radius:50%;background:#bcbcbc;border:0;display:flex;align-items:center;justify-content:center;color:#242424}
-.send:hover{background:#fff}.send .i{width:16px;height:16px}
-.composer-context{display:flex;align-items:center;justify-content:space-between;padding:7px 17px 0;color:#898989;font-size:10px;gap:12px}
-.context-part{display:flex;gap:5px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.context-part .i{width:12px;height:12px}
-.about-badge{position:absolute;bottom:8px;right:12px;color:#777;font-size:10px;display:none}
-.alert{position:fixed;bottom:20px;right:22px;z-index:40;background:#292929;border:1px solid #444;border-radius:9px;color:#e5e5e5;padding:13px 17px;max-width:min(380px,calc(100vw - 32px));box-shadow:0 12px 30px #0008;font-size:12px;display:none}
-.alert.show{display:block}
-.modal-backdrop{position:fixed;inset:0;z-index:50;display:none;align-items:flex-start;justify-content:center;padding-top:12vh;background:#0009}
-.modal-backdrop.show{display:flex}
-.modal{width:min(580px,calc(100vw - 26px));padding:18px;border-radius:12px;background:#252525;border:1px solid #444;box-shadow:0 30px 90px #000b}
-.modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-weight:600;font-size:14px}
-.modal input{width:100%;background:#181818;border:1px solid #444;border-radius:7px;color:#fff;height:38px;padding:0 12px}
-.modal-results{max-height:340px;overflow:auto;padding-top:12px}
-.search-result{width:100%;background:none;border:0;color:#eee;text-align:left;border-radius:6px;padding:10px;display:flex;gap:10px;align-items:center}
-.search-result:hover{background:#393939}
-.search-result small{font-size:10px;color:#999}
-.search-result .title{display:block;font-size:12px}
-.modal p{color:#aaa;line-height:1.7}
-.mobile-mask{display:none}
-.mobile-menu{display:none}
-.sidebar.is-hidden + .main .mobile-menu{display:inline-flex}
-.sidebar.is-hidden{display:none}
-[hidden]{display:none!important}
-@media(max-width:740px){
- .mobile-menu{display:inline-flex}
- .sidebar{position:fixed;z-index:30;inset:0 auto 0 0;width:min(260px,88vw);box-shadow:12px 0 25px #0005;transform:translateX(-105%);transition:transform .18s ease}
- .sidebar.mobile-open{transform:translateX(0)}
- .mobile-mask.on{display:block;position:fixed;inset:0;background:#0009;z-index:25}
- .main-head{padding:0 8px}
- .main-head .header-context{display:none}
- .header-switch button{padding:5px 7px}
- .tabbar{padding-left:4px}
- .chat-scroll{padding:14px 13px 170px}
- .composer-wrap{bottom:6px;padding:0 10px}
- .composer-context{padding-inline:8px}
- .context-part:last-child{display:none}
- .user-bubble{max-width:100%}
- .job-chip{max-width:130px;overflow:hidden;text-overflow:ellipsis}
- .model-chip .muted{display:none}
-}
-</style>
-</head>
-<body>
-<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
-<symbol id="ico-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
-<symbol id="ico-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.2 16.2 5 5"/></symbol>
-<symbol id="ico-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
-<symbol id="ico-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
-<symbol id="ico-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3m10-10h-3M5 12H2m17.1-7.1L17 7m-10 10-2.1 2.1m14.2 0L17 17M7 7 4.9 4.9"/></symbol>
-<symbol id="ico-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
-<symbol id="ico-arrow" viewBox="0 0 24 24"><path d="m12 19 0-14m-6 6 6-6 6 6"/></symbol>
-<symbol id="ico-down" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
-<symbol id="ico-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
-<symbol id="ico-terminal" viewBox="0 0 24 24"><path d="m4 5 7 7-7 7M13 19h7"/></symbol>
-<symbol id="ico-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21m-4 0h8"/></symbol>
-<symbol id="ico-worktree" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 7v10m0-5h12m-8-7h5v5"/></symbol>
-<symbol id="ico-x" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
-</svg>
-<div class="ui" id="app">
- <div class="mobile-mask" id="mask"></div>
- <aside class="sidebar" id="sidebar" aria-label="워크스페이스와 에이전트">
-  <div class="sidebar-head">
-   <button class="glyph-btn" id="toggleSidebar" aria-label="사이드바 열고 닫기" title="사이드바 접기"><svg class="i"><use href="#ico-sidebar"/></svg></button>
-   <button class="glyph-btn" id="openSearch" aria-label="대화 검색" title="검색"><svg class="i"><use href="#ico-search"/></svg></button>
-  </div>
-  <div class="filter-wrap"><label for="filter">필터</label><input id="filter" placeholder="워크스페이스와 에이전트" autocomplete="off"></div>
-  <div class="section-scroll">
-   <div class="tree" id="workspaceList">
-    <div class="tree-group" data-group="checkout-api">
-     <button class="workspace-head" data-select="retry" data-root="checkout-api"><svg class="i"><use href="#ico-folder"/></svg><span class="mark claude">✳</span><span class="workspace-name">checkout-api</span></button>
-     <div class="workspace-branch">
-      <button class="workspace-row" data-select="payments"><span class="mark openai">❀</span><span class="title">export-guard</span><span class="secondary">feat/export-guard</span><span class="question">?</span></button>
-      <button class="workspace-row active" data-select="retry"><span class="mark claude">✳</span><span class="title">flaky-retry-test</span><span class="secondary">fix/flaky-retry-...</span></button>
-     </div>
-    </div>
-    <div class="tree-group" data-group="cli-tools">
-     <button class="workspace-head" data-select="config"><svg class="i"><use href="#ico-folder"/></svg><span class="mark purple">π</span><span class="workspace-name">cli-tools</span></button>
-     <div class="workspace-branch">
-      <button class="workspace-row" data-select="ship"><span class="mark pixel">◩</span><span class="title">retry-flag</span><span class="secondary">feat/retry-flag</span></button>
-      <button class="workspace-row" data-select="changelog"><span class="mark pixel">♜</span><span class="title">changelog</span><span class="secondary">docs/changelog</span></button>
-     </div>
-    </div>
-    <button class="tree-add" id="addWorkspace"><svg class="i"><use href="#ico-plus"/></svg>새 워크스페이스</button>
-   </div>
-  </div>
-  <div class="agent-pane">
-   <div class="agent-label">에이전트</div>
-   <button class="agent-row" data-select="payments"><span class="mark claude">✳</span><span class="primary">Idempotent payments</span><span class="secondary">checkout-api</span><span class="side-state">☷ 1/3</span></button>
-   <button class="agent-row" data-select="payments"><span class="mark openai">❀</span><span class="primary">Guard the export button</span><span class="secondary">export-gu...</span><span class="side-state question">?</span></button>
-   <button class="agent-row active" data-select="retry"><span class="mark claude">✳</span><span class="primary">Fix the flaky retry test</span><span class="secondary">flaky-re...</span><span class="side-state">☷ 2</span></button>
-   <button class="agent-row" data-select="config"><span class="mark purple">π</span><span class="primary">Plan the config file</span><span class="secondary">cli-tools</span></button>
-   <button class="agent-row" data-select="ship"><span class="mark pixel">◩</span><span class="primary">Ship the retry flag</span><span class="secondary">retry-flag</span></button>
-   <button class="agent-row" data-select="changelog"><span class="mark pixel">♜</span><span class="primary">Draft the changelog</span><span class="secondary">changelog</span></button>
-  </div>
-  <div class="sidebar-foot"><button class="glyph-btn" id="settings" title="설정" aria-label="설정"><svg class="i"><use href="#ico-settings"/></svg></button></div>
- </aside>
- <main class="main">
-  <header class="main-head">
-   <button id="mobileMenu" class="glyph-btn mobile-menu" title="메뉴 열기"><svg class="i"><use href="#ico-sidebar"/></svg></button>
-   <span id="currentMark" class="mark claude">✳</span>
-   <span id="pageTitle" class="header-name">Fix the flaky retry test</span>
-   <span id="pageContext" class="header-context">flaky-retry-test</span>
-   <div class="main-right">
-    <nav class="header-switch" aria-label="보기 전환"><button id="chatMode" class="active">채팅</button><button id="terminalMode">터미널</button></nav>
-    <div class="header-divider"></div>
-    <button class="glyph-btn" id="folderButton" aria-label="작업 폴더" title="워크스페이스 폴더"><svg class="i"><use href="#ico-folder"/></svg></button>
-    <button class="glyph-btn" id="moreButton" aria-label="더보기" title="더보기"><svg class="i"><use href="#ico-more"/></svg></button>
-   </div>
-  </header>
-  <div class="tabbar"><button class="tab selected" id="activeTab">Fix the flaky retry test</button><button id="addTab" class="tab-plus" title="새 탭">+</button></div>
-  <div class="stage">
-   <div class="chat-scroll" id="chatScroll"><div class="thread" id="thread">
-    <div class="user-turn">
-     <div class="user-bubble" id="userBubble">retries a timed-out upload fails about one run in ten. Find out why and fix it.</div>
-     <div class="user-meta"><span>오후 11:15</span><button id="copyPrompt" aria-label="질문 복사" title="복사"><svg class="i"><use href="#ico-copy"/></svg></button></div>
-    </div>
-    <div class="agent-turn">
-     <button id="workSummary" class="work-summary" aria-expanded="false"><svg class="i chev"><use href="#ico-down"/></svg><span>2분 26초 작업 · 편집 1개 · 파일 읽기 1개 · 명령 2개</span></button>
-     <div class="work-details" id="workDetails">$ rg retry tests/</div>
-     <div id="agentAnswer" class="agent-answer">The test waited on the real clock, so a slow run let the backoff timer fire before the second attempt was counted. It now drives the timer with a fake clock: 50 runs out of 50 pass.</div>
-     <div class="assistant-meta"><span class="meta-type"><svg class="i"><use href="#ico-copy"/></svg> MD</span><span class="meta-type"><svg class="i"><use href="#ico-copy"/></svg> TXT</span><span>오후 11:15</span></div>
-    </div>
-   </div></div>
-   <section id="terminalPanel" class="terminal-stage" hidden aria-label="터미널 화면">
-    <div style="color:#aaa;display:flex;align-items:center;gap:8px"><svg class="i"><use href="#ico-terminal"/></svg> checkout-api / flaky-retry-test <span style="margin-left:auto;color:#777">DEMO</span></div>
-    <pre id="terminalText">$ git status --short
- M tests/upload-retry.test.ts
-
-$ bun test tests/upload-retry.test.ts
- 50 pass
- 0 fail
-
-$ git log --oneline -2
-2c78dd4 fix flaky retry timing
-a31b671 add upload retry test</pre>
-   </section>
-   <div class="composer-wrap" id="composerWrap">
-    <div class="composer-column">
-     <form class="composer" id="composer">
-      <textarea id="message" rows="1" placeholder="Claude에게 메시지..." aria-label="새 메시지"></textarea>
-      <div class="compose-footer">
-       <button class="glyph-btn" type="button" id="addAttachment" aria-label="첨부"><svg class="i"><use href="#ico-plus"/></svg></button>
-       <button class="glyph-btn" type="button" id="micButton" aria-label="마이크"><svg class="i"><use href="#ico-mic"/></svg></button>
-       <button class="job-chip" type="button" id="jobButton">⚙ 백그라운드 작업 2개</button>
-       <div class="composer-right"><button class="model-chip" type="button" id="modelButton"><span class="mark claude" style="width:12px;height:12px;font-size:9px">✳</span> Opus 5.5 <span class="muted">· High</span></button><button class="send" type="submit" aria-label="메시지 전송 데모"><svg class="i"><use href="#ico-arrow"/></svg></button></div>
-      </div>
-     </form>
-     <div class="composer-context"><span class="context-part"><svg class="i"><use href="#ico-folder"/></svg><span>checkout-api&nbsp; 워크트리</span></span><span class="context-part"><svg class="i"><use href="#ico-worktree"/></svg><span id="branch">fix/flaky-retry-test</span></span></div>
-    </div>
-   </div>
-  </div>
- </main>
-</div>
-<div class="alert" id="alert" role="status"></div>
-<div class="modal-backdrop" id="searchOverlay"><div class="modal"><header><span>검색</span><button id="searchClose" class="glyph-btn"><svg class="i"><use href="#ico-x"/></svg></button></header><input id="searchInput" placeholder="워크스페이스와 에이전트 검색..." autocomplete="off"><div class="modal-results" id="searchResults"></div></div></div>
-<div class="modal-backdrop" id="aboutOverlay"><div class="modal"><header><span>OVIS Mirror 미리보기 설정</span><button id="aboutClose" class="glyph-btn"><svg class="i"><use href="#ico-x"/></svg></button></header><p>제공한 OVIS 스크린샷에 맞춰 재구성한 UI 데모야. 이 공개 페이지는 ChatGPT 또는 로컬 PC에 연결되지 않고, 예시 대화만 표시해.</p><p><button id="themeSwitch" style="background:#393939;border:1px solid #555;border-radius:6px;padding:9px 15px;color:#fff">라이트/다크 테마 전환</button></p><p>원본 프로젝트: <a href="https://github.com/devswha/ovis" style="color:#90bdff" target="_blank" rel="noopener">devswha/ovis</a> (MIT License, © 2026 devswha)</p></div></div>
-<script>
-(function(){
-"use strict";
-var $=function(id){return document.getElementById(id)};
-var dialogs=["searchOverlay","aboutOverlay"];
-var sessions={
- retry:{title:"Fix the flaky retry test",short:"flaky-retry-test",branch:"fix/flaky-retry-test",mark:"claude",prompt:"retries a timed-out upload fails about one run in ten. Find out why and fix it.",answer:"The test waited on the real clock, so a slow run let the backoff timer fire before the second attempt was counted. It now drives the timer with a fake clock: 50 runs out of 50 pass.",work:"2분 26초 작업 · 편집 1개 · 파일 읽기 1개 · 명령 2개"},
- payments:{title:"Guard the export button",short:"export-guard",branch:"feat/export-guard",mark:"openai",prompt:"Prevent the export action from running twice on slow responses.",answer:"The export guard now disables duplicate submissions until the current request has settled. The UI shows a single progress state.",work:"1분 42초 작업 · 편집 2개"},
- config:{title:"Plan the config file",short:"cli-tools",branch:"cli-tools",mark:"purple",prompt:"Plan a configuration file for the CLI with sensible defaults.",answer:"The plan separates environment overrides from repository defaults and validates the schema before starting.",work:"1분 08초 작업 · 파일 읽기 2개"},
- ship:{title:"Ship the retry flag",short:"retry-flag",branch:"feat/retry-flag",mark:"pixel",prompt:"Ship the retry flag, including the test cases.",answer:"The retry flag is implemented with explicit opt-in and tests covering both enabled and disabled behavior.",work:"2분 04초 작업 · 편집 3개"},
- changelog:{title:"Draft the changelog",short:"changelog",branch:"docs/changelog",mark:"pixel",prompt:"Draft the release changelog for this sprint.",answer:"I drafted the changelog with fixes, improvements, and migration notes grouped by impact.",work:"56초 작업 · 편집 1개"}
-};
-var selected="retry",mode="chat",timer=null;
-function toast(message){var e=$("alert");e.textContent=message;e.classList.add("show");clearTimeout(timer);timer=setTimeout(function(){e.classList.remove("show")},3000)}
-function all(selector){return Array.from(document.querySelectorAll(selector))}
-function closeDialogs(){dialogs.forEach(function(x){$(x).classList.remove("show")})}
-function openDialog(name){closeDialogs();$(name).classList.add("show")}
-function closeSidebar(){$("sidebar").classList.remove("mobile-open");$("mask").classList.remove("on")}
-function select(id){
- if(!sessions[id])return;
- selected=id;var s=sessions[id];
- $("pageTitle").textContent=s.title;$("pageContext").textContent=s.short;$("activeTab").textContent=s.title;
- $("currentMark").className="mark "+s.mark;$("currentMark").textContent=s.mark==="claude"?"✳":s.mark==="purple"?"π":s.mark==="openai"?"❀":"◩";
- $("userBubble").textContent=s.prompt;$("agentAnswer").textContent=s.answer;
- $("workSummary").lastElementChild.textContent=s.work;
- $("branch").textContent=s.branch;
- all("[data-select]").forEach(function(e){e.classList.toggle("active",e.dataset.select===id && !e.classList.contains("workspace-head"))});
- $("workSummary").setAttribute("aria-expanded","false");$("workDetails").classList.remove("show");
- $("chatScroll").scrollTop=0;closeSidebar()
-}
-function changeMode(next){
- mode=next;var isChat=next==="chat";
- $("chatMode").classList.toggle("active",isChat);$("terminalMode").classList.toggle("active",!isChat);
- $("chatScroll").hidden=!isChat;$("composerWrap").hidden=!isChat;$("terminalPanel").hidden=isChat;
-}
-function filterList(){var query=$("filter").value.trim().toLowerCase();
- all(".tree-group").forEach(function(group){var match=group.textContent.toLowerCase().includes(query);group.hidden=!match});
- all(".agent-row").forEach(function(row){row.hidden=!row.textContent.toLowerCase().includes(query)})}
-function search(){var q=$("searchInput").value.trim().toLowerCase();var e=$("searchResults");e.replaceChildren();
- if(!q){e.textContent="검색어를 입력하세요.";return}
- Object.keys(sessions).filter(function(key){var s=sessions[key];return [s.title,s.prompt,s.answer,s.short].join(" ").toLowerCase().includes(q)}).forEach(function(key){
- var s=sessions[key],b=document.createElement("button");b.className="search-result";
- var name=document.createElement("span");name.className="title";name.textContent=s.title;b.appendChild(name);
- b.onclick=function(){select(key);closeDialogs();changeMode("chat")};e.appendChild(b)
- });
- if(!e.childElementCount)e.textContent="검색 결과가 없어."
-}
-all("[data-select]").forEach(function(x){x.addEventListener("click",function(){select(x.dataset.select)})});
-$("filter").addEventListener("input",filterList);
-$("toggleSidebar").onclick=function(){if(matchMedia("(max-width:740px)").matches){closeSidebar()}else{$("sidebar").classList.add("is-hidden")}};
-$("mobileMenu").onclick=function(){$("sidebar").classList.add("mobile-open");$("mask").classList.add("on")};
-$("mask").onclick=closeSidebar;
-$("openSearch").onclick=function(){openDialog("searchOverlay");$("searchInput").focus()};
-$("searchClose").onclick=closeDialogs;$("aboutClose").onclick=closeDialogs;
-$("searchInput").oninput=search;
-dialogs.forEach(function(x){$(x).addEventListener("click",function(e){if(e.target===$(x))closeDialogs()})});
-$("workSummary").onclick=function(){var expanded=this.getAttribute("aria-expanded")==="true";this.setAttribute("aria-expanded",String(!expanded));$("workDetails").classList.toggle("show",!expanded)};
-$("chatMode").onclick=function(){changeMode("chat")};$("terminalMode").onclick=function(){changeMode("terminal")};
-$("settings").onclick=function(){openDialog("aboutOverlay")};
-$("moreButton").onclick=function(){openDialog("aboutOverlay")};
-$("themeSwitch").onclick=function(){document.documentElement.dataset.mode=document.documentElement.dataset.mode==="dark"?"light":"dark"};
-$("folderButton").onclick=function(){toast("워크스페이스 폴더는 데모에서 열 수 없어.")};
-$("addWorkspace").onclick=function(){toast("새 워크스페이스 기능은 데모 화면이야.")};
-$("addTab").onclick=function(){toast("탭 추가는 디자인 미리보기에서 지원하지 않아.")};
-["addAttachment","micButton","jobButton","modelButton"].forEach(function(id){$(id).onclick=function(){toast("이 기능은 현재 디자인 미리보기야.")}});
-$("copyPrompt").onclick=function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sessions[selected].prompt).then(function(){toast("질문을 복사했어.")}).catch(function(){toast("복사 기능을 사용할 수 없어.")})}else toast("브라우저 복사를 지원하지 않아.")};
-$("message").addEventListener("input",function(){this.style.height="22px";this.style.height=Math.min(this.scrollHeight,115)+"px"});
-$("message").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();$("composer").requestSubmit()}});
-$("composer").addEventListener("submit",function(e){e.preventDefault();var val=$("message").value.trim();if(!val)return;
- $("userBubble").textContent=val;$("userBubble").parentNode.querySelector(".user-meta span").textContent="방금 전";
- $("agentAnswer").textContent="이 페이지는 OVIS 디자인 미리보기야. 실제 ChatGPT로 메시지를 보내지는 않아.";
- $("workSummary").lastElementChild.textContent="데모 응답 · 실제 작업 없음";
- $("message").value="";$("message").style.height="22px";$("chatScroll").scrollTop=0;toast("데모 대화만 변경했어. 실제 전송은 되지 않았어.")
-});
-window.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openDialog("searchOverlay");$("searchInput").focus()}if(e.key==="Escape"){closeDialogs();closeSidebar()}});
-})();
-</script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="description" content="Ovis, the browser and phone client for herdr. Chat with your coding agents and use live herdr terminals." />
+    <meta property="og:title" content="Ovis" />
+    <meta property="og:description" content="Your agents. Any screen. Chat, terminal and mobile access for herdr." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://ovis.sh/assets/og-icon.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Ovis app icon, a sleepy sheep on navy, above the name Ovis." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#1f1f1f" />
+    <meta name="color-scheme" content="dark" />
+    <!-- The query is a URL no pre-0.3.32 service worker has cached: those serve the plain
+         URL cache-first, which handed Chrome the old `orientation: "any"` manifest on the
+         first launch after an upgrade and spent that day's installed-app update check.
+         use-credentials: a browser fetches the manifest without cookies otherwise, and a
+         proxy that signs every request in answers that with its login page, not the app. -->
+    <link rel="icon" href="./favicon.ico?v=sheep1" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon.png?v=sheep1" sizes="64x64" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=sheep1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Leave apple-mobile-web-app-status-bar-style unset to use the normal home-screen
+         status-bar layout instead of drawing beneath it (#164). Existing installs and
+         viewport behavior need separate checks; see docs/ios-home-screen-testing.md. -->
+    <meta name="apple-mobile-web-app-title" content="Ovis" />
+    <title>Ovis</title>
+    <script src="./assets/theme-bootstrap-f1c4fae877.js"></script>
+    <script src="./demo-transport.js"></script>
+    <script type="module" crossorigin src="./assets/index-CixB0mih.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/rolldown-runtime-Dd_uD5pT.js">
+    <link rel="modulepreload" crossorigin href="./assets/jsx-runtime-DKj5X9O4.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-CLHzhS1T.css">
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <!-- What a slow link shows until the app's script runs: React's first frame replaces it (#2329) -->
+    <div id="root"><div class="boot" role="status"><div class="boot-spinner" aria-hidden="true"></div><span class="visually-hidden">Loading Ovis</span></div></div>
+  </body>
 </html>
