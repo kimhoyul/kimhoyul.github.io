@@ -1,0 +1,85 @@
+name: Build original Ovis demo for Mirror preview
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-ovis-native-demo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ovis-native-demo
+  cancel-in-progress: false
+
+jobs:
+  build-original-ovis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout site repository
+        uses: actions/checkout@v4
+        with:
+          path: website
+          fetch-depth: 1
+
+      - name: Checkout exact upstream Ovis revision
+        uses: actions/checkout@v4
+        with:
+          repository: devswha/ovis
+          ref: 6c694ec4d50997de635d4b468fdfc5d599660d7d
+          path: ovis-upstream
+          persist-credentials: false
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Install upstream dependencies
+        working-directory: ovis-upstream
+        run: bun install --frozen-lockfile
+
+      - name: Build actual Ovis client and official fixture transport
+        working-directory: ovis-upstream
+        run: bun run build:site
+
+      - name: Verify official demo build
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s ovis-upstream/_site/demo/app/index.html
+          test -s ovis-upstream/_site/demo/app/demo-transport.js
+          test -d ovis-upstream/_site/demo/app/assets
+          grep -q 'demo-transport.js' ovis-upstream/_site/demo/app/index.html
+
+      - name: Replace only Ovis Mirror preview directory with the real Ovis demo
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf website/ovis-mirror
+          mkdir -p website/ovis-mirror
+          cp -a ovis-upstream/_site/demo/app/. website/ovis-mirror/
+          cp ovis-upstream/LICENSE website/ovis-mirror/OVIS_LICENSE.txt
+          cp ovis-upstream/THIRD_PARTY_NOTICES.md website/ovis-mirror/THIRD_PARTY_NOTICES.md
+          printf '%s\n' 'Original Ovis UI, MIT licensed, copyright 2026 devswha.' \
+            'Source: https://github.com/devswha/ovis' \
+            'Revision: 6c694ec4d50997de635d4b468fdfc5d599660d7d' \
+            'This official-fixture demo does not access ChatGPT, MyPC MCP, or a real PC.' \
+            > website/ovis-mirror/OVIS_SOURCE.txt
+
+      - name: Commit generated web app to GitHub Pages branch
+        working-directory: website
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- ovis-mirror
+          if git diff --cached --quiet; then
+            echo 'No changes to publish'
+          else
+            git commit -m "Deploy original Ovis demo from pinned upstream source"
+            git push origin HEAD:main
+          fi
